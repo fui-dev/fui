@@ -4,6 +4,9 @@
 
 ## Fui structure
 Fui follows the Flet architecture. Its differences in the core and build tools are the addition of layers of obfuscation in compiling Python application code and managing extensions and building local modules specific to each specific version of the project.
+## Fui components:
+Fui extensions: This is a section for managing input extensions. When a task imports an extension from Fui packages into its application code, Fui automatically detects it and adds it to the local compilation of Fui's internal packages. This allows for better management of extensions and input packages to the module. It is accessible via `import fui.extensions.{extension_name}`
+Fui translator: It is a section for supporting and managing different languages ​​in the user application, which can be activated if necessary. This tool helps the user application UI to be translated and switched to any language and uses 2 translators, google translate and mymemory, which can be configured. It is accessible via `import fui.translator`
 
 ## Fui app example
 
