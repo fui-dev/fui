@@ -3,7 +3,7 @@
 <img src="media/loading-animation.png" width="50%"/>
 
 ## Fui structure
-Fui follows the Flat architecture. Its differences in the core and build tools are the addition of layers of obfuscation in compiling Python application code and managing extensions and building local modules specific to each specific version of the project.
+Fui follows the Flet architecture. Its differences in the core and build tools are the addition of layers of obfuscation in compiling Python application code and managing extensions and building local modules specific to each specific version of the project.
 
 ## Fui app example
 
