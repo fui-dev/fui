@@ -1,0 +1,2 @@
+from .translate_page import TranslateFletPage
+from .translate_support_language import MymemoryTranslateLanguage,GoogleTranslateLanguage

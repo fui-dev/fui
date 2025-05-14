@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "fui-cli"
+version = "1.0.0"
+description = "fui CLI"
+authors = ["Appveyor Systems Inc. <hello@fui.dev>"]
+license = "Apache-2.0"
+
+packages = [{ include = "fui_cli", from = "src" }]
+
+[tool.poetry.urls]
+homepage = "https://fui.dev"
+repository = "https://github.com/fui-dev/fui"
+documentation = "https://fui.dev/docs"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fui = { version = "1.0.0" }
+watchdog = "^4.0.0"
+packaging = "*"
+qrcode = "^7.4.2"
+toml = "^0.10.2"
+cookiecutter = "^2.6.0"
+
+[tool.poetry.plugins."pyinstaller40"]
+hook-dirs = "fui_cli.__pyinstaller:get_hook_dirs"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.isort]
+profile = "black"
+float_to_top = true

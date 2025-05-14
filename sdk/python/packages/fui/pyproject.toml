@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "fui"
+version = "1.0.0"
+description = "fui for Python - easily build interactive multi-platform apps in Python"
+authors = ["Appveyor Systems Inc. <hello@fui.dev>"]
+license = "Apache-2.0"
+
+packages = [{ include = "fui", from = "src" }]
+
+[tool.poetry.urls]
+homepage = "https://fui.dev"
+repository = "https://github.com/fui-dev/fui"
+documentation = "https://fui.dev/docs"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fui-cli = { version = "1.0.0", optional = true }
+fui-desktop = { version = "1.0.0", optional = true, markers = "platform_system == 'Darwin' or platform_system == 'Windows'" }
+fui-web = { version = "1.0.0", optional = true }
+oauthlib = { version = "^3.2.2", markers = "platform_system != 'Pyodide'" }
+httpx = { version = "*", markers = "platform_system != 'Pyodide'" }
+repath = "^0.9.0"
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^2.6"
+pytest = "^7.2.0"
+cryptography = "^39.0.0"
+
+[tool.poetry.extras]
+all = ["fui-cli", "fui-desktop", "fui-web"]
+cli = ["fui-cli"]
+web = ["fui-web"]
+desktop = ["fui-desktop"]
+
+[tool.poetry.scripts]
+fui = "fui.cli:main"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

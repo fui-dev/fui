@@ -1,0 +1,25 @@
+name: fui_flashlight
+description: fui Flashlight control
+homepage: https://fui.dev
+repository: https://github.com/fui-dev/fui/packages/fui_flashlight
+version: 1.0.0
+
+environment:
+  sdk: '>=3.2.3 <4.0.0'
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+
+  collection: ^1.16.0
+  torch_light: ^1.0.0
+
+  fui:
+    path: ../fui
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
