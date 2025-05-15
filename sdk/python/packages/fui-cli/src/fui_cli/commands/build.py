@@ -14,7 +14,6 @@ import tempfile
 import zipfile
 import fui.version
 import yaml
-from fui.obfuscator import Obfuscator
 from fui.utils import copy_tree, is_windows, slugify
 from fui.utils.platform_utils import get_bool_env_var
 from fui.version import update_version
@@ -70,7 +69,6 @@ class Command(BaseCommand):
         self.emojis = {}
         self.dart_exe = None
         self.verbose = False
-        self.no_obfuscator = False
         self.build_dir = None
         self.flutter_dir: Optional[Path] = None
         self.flutter_exe = None
@@ -272,11 +270,6 @@ class Command(BaseCommand):
             action="store_true",
             default=None,
             help="clear build cache",
-        )
-        parser.add_argument(
-            "--no_obfuscator",
-            action="store_true",
-            help="Do not obfuscate the build output"
         )
         parser.add_argument(
             "--project",
@@ -606,12 +599,6 @@ class Command(BaseCommand):
                 1,
                 f"Path to fui app does not exist or is not a directory: {self.python_app_path}",
             )
-        self.no_obfuscator = self.options.no_obfuscator
-        if not self.no_obfuscator:
-            pap = os.path.join(os.path.dirname(self.python_app_path),"obfuscator")
-            shutil.copytree(self.python_app_path,pap)
-            self.last_python_app_path = self.python_app_path
-            self.python_app_path = Path(pap).resolve()
 
         # get `flutter` and `dart` executables from PATH
         self.flutter_exe = self.find_flutter_batch("flutter")
@@ -697,15 +684,7 @@ class Command(BaseCommand):
             or "main"
         ).stem
         self.python_module_filename = f"{self.python_module_name}.py"
-        self.python_module_file_path = self.package_app_path.joinpath(self.python_module_filename)
-        if not self.no_obfuscator:
-            pkg_app_path = Path(self.python_app_path)
-            if self.get_pyproject("tool.fui.app.path"):
-                pkg_app_path = self.python_app_path.joinpath(
-                    cast(str, self.get_pyproject("tool.fui.app.path"))
-                )
-            self.last_python_module_file_path = pkg_app_path.joinpath(self.python_module_filename)
-        if not self.python_module_file_path.exists():
+        if not self.package_app_path.joinpath(self.python_module_filename).exists():
             self.cleanup(
                 1,
                 f"{self.python_module_filename} not found in the root of fui app directory. "
@@ -1025,7 +1004,6 @@ class Command(BaseCommand):
     def load_pubspec(self):
         assert self.pubspec_path
         assert self.template_data
-        assert self.python_module_file_path
         assert self.get_pyproject
         assert isinstance(self.flutter_dependencies, dict)
 
@@ -1058,7 +1036,7 @@ class Command(BaseCommand):
                 f"Removed Fui Packages Download cache {self.emojis['checkmark']}"
             )
         
-        for dep in self.get_fui_extensions_imports(self.python_module_file_path if self.no_obfuscator else self.last_python_module_file_path):
+        for dep in self.get_fui_extensions_imports(self.package_app_path.joinpath(self.python_module_filename)):
             dep_path = os.path.join(self.fui_packages_path,dep)
             if os.path.exists(dep_path) and dep not in self.pubspec["dependencies"].keys():
                 self.pubspec["dependencies"][dep] = {}
@@ -1345,20 +1323,6 @@ class Command(BaseCommand):
         assert self.package_app_path
         assert self.build_dir
         assert self.flutter_dir
-        
-        if not self.no_obfuscator:
-            self.status.update(
-                f"[bold blue]Obfuscating the Python source code {self.emojis['loading']}... "
-            )
-            level = int(self.get_pyproject("tool.fui.obfuscator.level")) if self.get_pyproject("tool.fui.obfuscator.level") else 6
-            names_size = int(self.get_pyproject("tool.fui.obfuscator.names_size")) if self.get_pyproject("tool.fui.obfuscator.names_size") else 12
-            Obfuscator(
-                filename=self.python_module_file_path,
-                output_filename=self.python_module_file_path,
-                level=level,
-                deobfuscate=False,
-                names_size=names_size
-            ).default_obfuscation()
 
         self.status.update(
             f"[bold blue]Packaging Python app {self.emojis['loading']}... "
