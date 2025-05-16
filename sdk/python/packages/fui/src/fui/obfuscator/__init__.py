@@ -1,3 +1,5 @@
+# Fui Obfuscator
+
 from base64 import b85encode
 from gzip import compress
 from random import choices
@@ -5,7 +7,6 @@ from pathlib import Path
 import zlib
 import base64
 import marshal
-import py_compile
 
 # Encoding
 zlb = lambda in_ : zlib.compress(in_)
