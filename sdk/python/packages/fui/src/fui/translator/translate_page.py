@@ -1,5 +1,5 @@
 from .translate_controls_content import translate_control_content
-import flet, threading, os, asyncio
+import fui, threading, os, asyncio
 from .translate_support_language import MymemoryTranslateLanguage,GoogleTranslateLanguage
 
 def is_rtl_language (language:str):
@@ -12,7 +12,7 @@ def is_rtl_language (language:str):
         return True
     return False
 
-class TranslateFletPage:
+class TranslateFuiPage:
     """
     This class will translate the whole page into a specific language. 
     The childs controls, page info (title, appbar, ..), etc..
@@ -25,7 +25,7 @@ class TranslateFletPage:
     Its use the device performance. So it can lead to a heavy usage.
     """
     def __init__(self,
-        page : flet.Page,
+        page : fui.Page,
         use_internet = True,
         from_language :MymemoryTranslateLanguage|GoogleTranslateLanguage = MymemoryTranslateLanguage.auto,
         into_language :MymemoryTranslateLanguage|GoogleTranslateLanguage = MymemoryTranslateLanguage.auto,

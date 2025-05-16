@@ -1,33 +1,33 @@
 from .translate_using_google import translate_using_google
 from .translate_using_mymemory import translate_using_mymemory
-import flet, threading, asyncio
+import fui, threading, asyncio
 
 allowed_props_to_translate = ["value", "label", "tooltip", "text", "semantics_label"]
 
-def translate_control_content (TranslateFletPage_class, control:flet.Control, use_internet:bool=True, update_async=False):
+def translate_control_content (TranslateFuiPage_class, control:fui.Control, use_internet:bool=True, update_async=False):
     """
     This function translate the control content.
 
     It create an attr (last_translated_texts:dict) in the control that stores the last translated
     texts so it reduces unnecessary translation requests.
     """
-    if type(control) is flet.TextField or hasattr(control,"data") and control.data == "no_translate":
+    if type(control) is fui.TextField or hasattr(control,"data") and control.data == "no_translate":
         allowed_props_to_translate_local = ["label", "tooltip", "semantics_label"]
     else:
         allowed_props_to_translate_local = allowed_props_to_translate
     # Check if the control is skiped so not translate it.
-    if control in TranslateFletPage_class.skiped_controls: return
+    if control in TranslateFuiPage_class.skiped_controls: return
     if control == None: return
     # start translating the control
-    if TranslateFletPage_class.mode == 0:
+    if TranslateFuiPage_class.mode == 0:
         for p in allowed_props_to_translate_local:
             if hasattr(control, str(p)):
                 value = getattr(control, str(p))
                 if use_internet and value != None and type(value) == str:
                     r = translate_using_mymemory(
                         src=value,
-                        from_language=TranslateFletPage_class.from_language.value,
-                        into_language=TranslateFletPage_class.into_language.value
+                        from_language=TranslateFuiPage_class.from_language.value,
+                        into_language=TranslateFuiPage_class.into_language.value
                     )
                     setattr(control, str(p), str(r))
     else:
@@ -37,8 +37,8 @@ def translate_control_content (TranslateFletPage_class, control:flet.Control, us
                 if use_internet and value != None and type(value) == str:
                     r = translate_using_google(
                         src=value,
-                        from_language=TranslateFletPage_class.from_language.value,
-                        into_language=TranslateFletPage_class.into_language.value
+                        from_language=TranslateFuiPage_class.from_language.value,
+                        into_language=TranslateFuiPage_class.into_language.value
                     )
                     setattr(control, str(p), str(r))
 
@@ -47,7 +47,7 @@ def translate_control_content (TranslateFletPage_class, control:flet.Control, us
         if hasattr(control, i):
             for i in getattr(control, str(i)):
                 threading.Thread(target=translate_control_content, kwargs={
-                    "TranslateFletPage_class" : TranslateFletPage_class,
+                    "TranslateFuiPage_class" : TranslateFuiPage_class,
                     "control" : i,
                     "use_internet" : use_internet
                 }, daemon=True).start()
@@ -56,7 +56,7 @@ def translate_control_content (TranslateFletPage_class, control:flet.Control, us
     for ic in sub_contents_names:
         if hasattr(control, ic):
             threading.Thread(target=translate_control_content, kwargs={
-                        "TranslateFletPage_class" : TranslateFletPage_class,
+                        "TranslateFuiPage_class" : TranslateFuiPage_class,
                         "control" : getattr(control, ic),
                         "use_internet" : use_internet
                     }, daemon=True).start()

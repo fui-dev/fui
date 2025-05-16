@@ -41,7 +41,7 @@ class Camera(ConstrainedControl):
 
     -----
 
-    Online docs: https://flet.dev/docs/controls/camera
+    Online docs: https://fui.dev/docs/controls/camera
     """
 
     def __init__(
