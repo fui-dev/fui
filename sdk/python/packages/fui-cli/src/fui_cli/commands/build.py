@@ -611,6 +611,7 @@ class Command(BaseCommand):
         self.obfuscate = self.options.obfuscate
         if self.obfuscate:
             pap = os.path.join(os.path.dirname(self.python_app_path),"obfuscator")
+            if os.path.exists(pap):shutil.rmtree(pap)
             shutil.copytree(self.python_app_path,pap)
             self.last_python_app_path = self.python_app_path
             self.python_app_path = Path(pap).resolve()
@@ -1049,8 +1050,7 @@ class Command(BaseCommand):
             console.log(
                 f"Downloading Fui Packages From Github {self.emojis['loading']}... "
             )
-            Path.mkdir(Path(__file__).parent.joinpath("packages"),parents=True, exist_ok=True)
-            packages_zip_file = __download_fui_client("packages.zip")
+            packages_zip_file = download_fui_client("packages.zip")
             with zipfile.ZipFile(packages_zip_file, "r") as zip_arch:
                 zip_arch.extractall(self.fui_packages_path)
                 zip_arch.close()
@@ -1774,7 +1774,7 @@ class Command(BaseCommand):
                             imported_items.append(self.pck_name[im_name])
         return imported_items
 
-def __download_fui_client(file_name):
+def download_fui_client(file_name):
     ver = version.Version(fui.version.version).base_version
     temp_arch = Path(tempfile.gettempdir()).joinpath(file_name)
     fui_url = f"https://github.com/fui-dev/fui/releases/download/v{ver}/{file_name}"
