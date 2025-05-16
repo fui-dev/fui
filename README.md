@@ -12,7 +12,7 @@ Fui follows the Flet architecture. Its differences in the core and build tools a
 ``Fui Translator``: It is a section for supporting and managing different languages ​​in the user application, which can be activated if necessary. This tool helps the user application UI to be translated and switched to any language and uses 2 translators, google translate and mymemory, which can be configured. It is accessible via `import fui.translator`
 
 
-``Fui Obfuscator``: This section is used to obfuscate the Python source code of the user application at build time. In this case, the source code of your project's Python files is obfuscated and then converted to `.pyc` files and placed in the project. It is accessible via `fui build {platform} --obfuscator`
+``Fui Obfuscator``: This section is used to obfuscate the Python source code of the user application at build time. In this case, the source code of your project's Python files is obfuscated and then converted to `.pyc` files and placed in the project. It is accessible via `fui build {platform} --obfuscate`
 
 
 ## Fui app example

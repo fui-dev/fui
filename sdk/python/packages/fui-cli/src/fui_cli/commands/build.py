@@ -73,7 +73,7 @@ class Command(BaseCommand):
         self.dart_exe = None
         self.verbose = False
         self.build_dir = None
-        self.obfuscator = False
+        self.obfuscate = False
         self.flutter_dir: Optional[Path] = None
         self.flutter_exe = None
         self.pck_name = {
@@ -276,7 +276,7 @@ class Command(BaseCommand):
             help="clear build cache",
         )
         parser.add_argument(
-            "--obfuscator",
+            "--obfuscate",
             action="store_true",
             help="Do obfuscate and compile app and packages in build output"
         )
@@ -608,8 +608,8 @@ class Command(BaseCommand):
                 1,
                 f"Path to fui app does not exist or is not a directory: {self.python_app_path}",
             )
-        self.obfuscator = self.options.obfuscator
-        if self.obfuscator:
+        self.obfuscate = self.options.obfuscate
+        if self.obfuscate:
             pap = os.path.join(os.path.dirname(self.python_app_path),"obfuscator")
             shutil.copytree(self.python_app_path,pap)
             self.last_python_app_path = self.python_app_path
@@ -706,7 +706,7 @@ class Command(BaseCommand):
                 f"{self.python_module_filename} not found in the root of fui app directory. "
                 f"Use --module-name option to specify an entry point for your fui app.",
             )
-        if self.obfuscator:
+        if self.obfuscate:
             pkg_app_path = Path(self.python_app_path)
             if self.get_pyproject("tool.fui.app.path"):
                 pkg_app_path = self.python_app_path.joinpath(
@@ -1059,7 +1059,7 @@ class Command(BaseCommand):
                 f"Removed Fui Packages Download cache {self.emojis['checkmark']}"
             )
         
-        for dep in self.get_fui_extensions_imports(self.last_python_module_file_path if self.obfuscator else self.python_module_file_path):
+        for dep in self.get_fui_extensions_imports(self.last_python_module_file_path if self.obfuscate else self.python_module_file_path):
             dep_path = os.path.join(self.fui_packages_path,dep)
             if os.path.exists(dep_path) and dep not in self.pubspec["dependencies"].keys():
                 self.pubspec["dependencies"][dep] = {}
@@ -1347,7 +1347,7 @@ class Command(BaseCommand):
         assert self.build_dir
         assert self.flutter_dir
 
-        if self.obfuscator:
+        if self.obfuscate:
             self.status.update(
                 f"[bold blue]Obfuscating the Python source code {self.emojis['loading']}... "
             )
@@ -1421,7 +1421,7 @@ class Command(BaseCommand):
                 else False
             )
             or
-            self.obfuscator
+            self.obfuscate
         ):
             package_args.append("--compile-app")
 
@@ -1434,7 +1434,7 @@ class Command(BaseCommand):
                 else False
             )
             or
-            self.obfuscator
+            self.obfuscate
         ):
             package_args.append("--compile-packages")
 
@@ -1447,7 +1447,7 @@ class Command(BaseCommand):
                 else True
             )
             or
-            self.obfuscator
+            self.obfuscate
         ):
             package_args.append("--cleanup")
 
