@@ -14,6 +14,7 @@ import tempfile
 import zipfile
 import fui.version
 import yaml
+from fui.obfuscator import obfuscate_folder
 from fui.utils import copy_tree, is_windows, slugify
 from fui.utils.platform_utils import get_bool_env_var
 from fui.version import update_version
@@ -64,12 +65,15 @@ class Command(BaseCommand):
         self.out_dir = None
         self.python_module_name = None
         self.get_pyproject = None
+        self.python_module_file_path = None
+        self.last_python_module_file_path = None
         self.python_app_path = None
         self.no_rich_output = None
         self.emojis = {}
         self.dart_exe = None
         self.verbose = False
         self.build_dir = None
+        self.obfuscator = False
         self.flutter_dir: Optional[Path] = None
         self.flutter_exe = None
         self.pck_name = {
@@ -270,6 +274,11 @@ class Command(BaseCommand):
             action="store_true",
             default=None,
             help="clear build cache",
+        )
+        parser.add_argument(
+            "--obfuscator",
+            action="store_true",
+            help="Do obfuscate and compile app and packages in build output"
         )
         parser.add_argument(
             "--project",
@@ -599,6 +608,12 @@ class Command(BaseCommand):
                 1,
                 f"Path to fui app does not exist or is not a directory: {self.python_app_path}",
             )
+        self.obfuscator = self.options.obfuscator
+        if self.obfuscator:
+            pap = os.path.join(os.path.dirname(self.python_app_path),"obfuscator")
+            shutil.copytree(self.python_app_path,pap)
+            self.last_python_app_path = self.python_app_path
+            self.python_app_path = Path(pap).resolve()
 
         # get `flutter` and `dart` executables from PATH
         self.flutter_exe = self.find_flutter_batch("flutter")
@@ -684,12 +699,20 @@ class Command(BaseCommand):
             or "main"
         ).stem
         self.python_module_filename = f"{self.python_module_name}.py"
-        if not self.package_app_path.joinpath(self.python_module_filename).exists():
+        self.python_module_file_path = self.package_app_path.joinpath(self.python_module_filename)
+        if not self.python_module_file_path.exists():
             self.cleanup(
                 1,
                 f"{self.python_module_filename} not found in the root of fui app directory. "
                 f"Use --module-name option to specify an entry point for your fui app.",
             )
+        if self.obfuscator:
+            pkg_app_path = Path(self.python_app_path)
+            if self.get_pyproject("tool.fui.app.path"):
+                pkg_app_path = self.python_app_path.joinpath(
+                    cast(str, self.get_pyproject("tool.fui.app.path"))
+                )
+            self.last_python_module_file_path = pkg_app_path.joinpath(self.python_module_filename)
 
     def setup_template_data(
         self,
@@ -1036,7 +1059,7 @@ class Command(BaseCommand):
                 f"Removed Fui Packages Download cache {self.emojis['checkmark']}"
             )
         
-        for dep in self.get_fui_extensions_imports(self.package_app_path.joinpath(self.python_module_filename)):
+        for dep in self.get_fui_extensions_imports(self.last_python_module_file_path if self.obfuscator else self.python_module_file_path):
             dep_path = os.path.join(self.fui_packages_path,dep)
             if os.path.exists(dep_path) and dep not in self.pubspec["dependencies"].keys():
                 self.pubspec["dependencies"][dep] = {}
@@ -1324,6 +1347,12 @@ class Command(BaseCommand):
         assert self.build_dir
         assert self.flutter_dir
 
+        if self.obfuscator:
+            self.status.update(
+                f"[bold blue]Obfuscating the Python source code {self.emojis['loading']}... "
+            )
+            obfuscate_folder(self.python_app_path)
+
         self.status.update(
             f"[bold blue]Packaging Python app {self.emojis['loading']}... "
         )
@@ -1391,6 +1420,8 @@ class Command(BaseCommand):
                 if self.get_pyproject("tool.fui.compile.app") is not None
                 else False
             )
+            or
+            self.obfuscator
         ):
             package_args.append("--compile-app")
 
@@ -1402,6 +1433,8 @@ class Command(BaseCommand):
                 if self.get_pyproject("tool.fui.compile.packages") is not None
                 else False
             )
+            or
+            self.obfuscator
         ):
             package_args.append("--compile-packages")
 
@@ -1413,6 +1446,8 @@ class Command(BaseCommand):
                 if self.get_pyproject("tool.fui.compile.cleanup") is not None
                 else True
             )
+            or
+            self.obfuscator
         ):
             package_args.append("--cleanup")
 
