@@ -90,6 +90,7 @@ def __locate_and_unpack_fui_view(page_url, assets_dir, hidden):
                     temp_fui_dir.mkdir(parents=True, exist_ok=True)
                     with zipfile.ZipFile(zip_file, "r") as zip_arch:
                         zip_arch.extractall(str(temp_fui_dir))
+                    os.remove(zip_file)
                 fui_path = str(temp_fui_dir.joinpath("fui", fui_exe))
         args = [fui_path, page_url, pid_file]
     elif is_macos():
@@ -116,6 +117,7 @@ def __locate_and_unpack_fui_view(page_url, assets_dir, hidden):
                 temp_fui_dir.mkdir(parents=True, exist_ok=True)
                 with tarfile.open(str(tar_file), "r:gz") as tar_arch:
                     safe_tar_extractall(tar_arch, str(temp_fui_dir))
+                os.remove(tar_file)
             else:
                 logger.info(f"fui View found in: {temp_fui_dir}")
 
@@ -152,6 +154,7 @@ def __locate_and_unpack_fui_view(page_url, assets_dir, hidden):
                 temp_fui_dir.mkdir(parents=True, exist_ok=True)
                 with tarfile.open(str(tar_file), "r:gz") as tar_arch:
                     safe_tar_extractall(tar_arch, str(temp_fui_dir))
+                os.remove(tar_file)
             else:
                 logger.info(f"fui View found in: {temp_fui_dir}")
 
@@ -167,7 +170,6 @@ def __locate_and_unpack_fui_view(page_url, assets_dir, hidden):
         fui_env["FUI_HIDE_WINDOW_ON_START"] = "true"
 
     return args, fui_env, pid_file
-
 
 def __download_fui_client(file_name):
     ver = fui_desktop.version.version
